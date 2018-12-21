@@ -37,4 +37,11 @@ public class ProcVariable {
     public void setResourceId(String resourceId) {
         this.resourceId = resourceId;
     }
+    
+    @Override
+    public String toString() {
+        return "ProcVariable [id=" + id + ", name=" + name + ", value=" + value + ", modelId=" + modelId
+                + ", resourceId=" + resourceId + "]";
+    }
+    
 }

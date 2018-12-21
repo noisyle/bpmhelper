@@ -17,9 +17,14 @@
       <el-header></el-header>
       <el-container>
         <el-aside style="position: fixed; width: 500px;">
-          <el-form :inline="true" @submit.native.prevent="search">
-            <el-form-item label="流程名称">
-              <el-input v-model="table.filter"></el-input>
+          <el-form :inline="true">
+            <el-form-item>
+              <el-input v-model="table.filter.name" placeholder="流程名称" @keyup.enter.native="search"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-select v-model="table.filter.category" placeholder="流程类型" clearable="true" @change="search">
+                <el-option v-for="category in categories" :key="category.id" :label="category.name" :value="category.id"></el-option>
+              </el-select>
             </el-form-item>
           </el-form>
           <el-table border stripe class="model-table" v-loading="table.loading" :data="table.list" @row-click="rowClick">
@@ -96,9 +101,10 @@
 		el : '#app',
 		data : function() {
 			return {
+				categories : [],
 				table : {
 					loading: false,
-					filter: '',
+					filter: {name: '', category: null},
 					list : [],
 					total : 0,
 					page : 1
@@ -122,6 +128,13 @@
 		mounted : function() {
 			var that = this
 			that.table.loading = true
+			axios.get('/categories')
+			  .then(function (res) {
+			    res.data.forEach(cat => that.categories.push(cat))
+			  })
+			  .catch(function (err) {
+			    console.log(err)
+			  })
 			axios.get('/procmodel/page/' + that.table.page)
 			  .then(function (res) {
 			    that.table.list = res.data.list
@@ -138,12 +151,16 @@
           loadTable : function(filter, page){
               var that = this
               that.table.loading = true
-              axios.get('/procmodel/page/' + page + (filter ? '?filter=' + filter : ''))
+              axios.get('/procmodel/page/' + page, {params: filter})
                 .then(function (res) {
                   that.table.list = res.data.list
                   that.table.total = res.data.total
                   that.table.page = res.data.pageNum
                   that.table.loading = false
+                  
+                  if(res.data.list) {
+                	  that.rowClick(res.data.list[0])
+                  }
                 })
                 .catch(function (err) {
                   console.log(err)
@@ -216,11 +233,12 @@
                     
                     axios.put('/procmodel/' + that.form.id, formData)
                       .then(function (res) {
-                        loading.close()
                         that.$alert('保存成功', '提示', {type: 'success'})
+                        loading.close()
                       })
                       .catch(function (err) {
                         console.log(err)
+                        that.$alert(err.message, '提示', {type: 'error'})
                         loading.close()
                       })
                 })

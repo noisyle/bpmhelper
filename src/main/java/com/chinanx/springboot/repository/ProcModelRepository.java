@@ -10,7 +10,9 @@ import com.chinanx.springboot.model.ProcModel;
 
 @Repository
 public interface ProcModelRepository {
-    List<ProcModel> getProcModel(@Param("filter") String filter);
+    List<Map<String, Object>> getCategories();
+    
+    List<ProcModel> getProcModel(@Param("name") String name, @Param("category") String category);
     
     ProcModel getProcModelById(long id);
     

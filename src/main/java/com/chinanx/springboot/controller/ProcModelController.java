@@ -15,11 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -47,10 +47,16 @@ public class ProcModelController {
     }
 
     @ResponseBody
-    @RequestMapping("/procmodel/page/{p:\\d+}")
-    public Object getProcModelByPage(@PathVariable int p, @RequestParam(required=false, defaultValue="") String filter) {
+    @GetMapping("/categories")
+    public Object getCategories() {
+        return repository.getCategories();
+    }
+    
+    @ResponseBody
+    @GetMapping("/procmodel/page/{p:\\d+}")
+    public Object getProcModelByPage(@PathVariable int p, @RequestParam(required=false, defaultValue="") String name, @RequestParam(required=false, defaultValue="") String category) {
         Page<ProcModel> page = PageHelper.startPage(p, 10);
-        repository.getProcModel(filter);
+        repository.getProcModel(name, category);
         return page.toPageInfo();
     }
     
@@ -63,6 +69,7 @@ public class ProcModelController {
     @SuppressWarnings("unchecked")
     @ResponseBody
     @PutMapping("/procmodel/{id:\\d+}")
+    @Transactional
     public Object saveProcModel(@PathVariable long id, @RequestParam String bytes, @RequestParam String variables) {
         ProcModel model = repository.getProcModelById(id);
         File folder = new File(System.getProperty("user.home"), ".bpmhelper");
@@ -75,31 +82,32 @@ public class ProcModelController {
             writer.write(model.getBytesString());
             writer.flush();
             writer.close();
-            logger.debug("backup model to {}", file.getPath());
+            logger.debug("Backup model to {}", file.getPath());
         } catch (Exception e) {
-            logger.error("backup model error", e);
+            logger.error("Backup model error", e);
             throw new RuntimeException("backup model failed", e);
         }
 
         try {
             List<ProcVariable> varList = (List<ProcVariable>) new ObjectMapper().readValue(variables, new TypeReference<List<ProcVariable>>(){});
-            logger.debug("update mode, id: {}, bytes: {}, variables: {}", id, bytes, varList);
+            logger.debug("Update mode, id: {}, bytes: {}", id, bytes);
+            logger.debug("variables: {}", varList);
             for(ProcVariable var : varList) {
                 if(!StringUtils.isEmpty(var.getName()) && !StringUtils.isEmpty(var.getValue())) {
-//                    varRepository.save(var);
+                    varRepository.save(var);
                 }
             }
         } catch (Exception e) {
-            logger.error("save model error", e);
-            throw new RuntimeException("save model failed", e);
+            logger.error("Save model error", e);
+            throw new RuntimeException("Save model failed", e);
         }
         
         try {
             model.setBytesString(bytes);
-//            repository.save(model);
+            repository.save(model);
         } catch (Exception e) {
-            logger.error("save model error", e);
-            throw new RuntimeException("save model failed", e);
+            logger.error("Save model error", e);
+            throw new RuntimeException("Save model failed", e);
         }
         
         return model;

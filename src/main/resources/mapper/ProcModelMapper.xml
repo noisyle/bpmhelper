@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.chinanx.springboot.repository.ProcModelRepository" >
+  <select id="getCategories" resultType="map">
+    select id "id", name "name" from bpm_category
+  </select>
+  
   <select id="getProcModel" resultType="ProcModel">
     select M.ID_            ID,
            M.NAME_          name,
@@ -15,9 +19,11 @@
        and M.EDITOR_SOURCE_VALUE_ID_ = B.ID_
        and BC.PROCESS_DEFINITION_ID = D.ID_
        and BP.CONF_BASE_ID = BC.ID
-       and BP.CATEGORY_ID != '715045391351808'
-       <if test="filter!=null and filter!=''">
-       and M.NAME_ like '%'||#{filter}||'%'
+       <if test="category != null and category != ''">
+       and BP.CATEGORY_ID = #{category}
+       </if>
+       <if test="name != null and name != ''">
+       and M.NAME_ like '%'||#{name}||'%'
        </if>
      order by M.NAME_
   </select>
@@ -39,7 +45,6 @@
        and M.EDITOR_SOURCE_VALUE_ID_ = B.ID_
        and BC.PROCESS_DEFINITION_ID = D.ID_
        and BP.CONF_BASE_ID = BC.ID
-       and BP.CATEGORY_ID != '715045391351808'
        and M.ID_ = #{id}
      order by M.NAME_
   </select>
@@ -49,6 +54,10 @@
   </select>
   
   <update id="save" parameterType="ProcModel">
-    update ACT_GE_BYTEARRAY B set B.bytes_ = #{bytes} where B.id_ = #{id}
+    update ACT_GE_BYTEARRAY B
+       set B.BYTES_ = #{bytes,jdbcType=BLOB}
+     where B.ID_ = (select M.EDITOR_SOURCE_VALUE_ID_
+                      from ACT_RE_MODEL M
+                     where M.ID_ = #{id})
   </update>
 </mapper>

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -29,7 +28,7 @@ public class BizModelController {
     }
 
     @ResponseBody
-    @RequestMapping("/bizmodel/page/{p:\\d+}")
+    @GetMapping("/bizmodel/page/{p:\\d+}")
     public Object getBizModelByPage(@PathVariable int p, @RequestParam(required=false, defaultValue="") String filter) {
         Page<BizModel> page = PageHelper.startPage(p, 10);
         repository.getBizModel(filter);
@@ -46,14 +45,14 @@ public class BizModelController {
     @PutMapping("/bizmodel/{id:\\d+}")
     public Object saveBizModelById(@PathVariable long id, @RequestParam String json) {
         BizModel model = repository.getBizModelById(id);
-        logger.debug("update mode, id: {}, bytes: {}", id, json);
+        logger.debug("Update mode, id: {}, bytes: {}", id, json);
         
         try {
             model.setJson(json);
             repository.save(model);
         } catch (Exception e) {
-            logger.error("save model error", e);
-            throw new RuntimeException("save model error", e);
+            logger.error("Save model error", e);
+            throw new RuntimeException("Save model error", e);
         }
         
         return model;
