@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinanx.springboot.repository.ProcVariableRepository" >
+  <insert id="save" parameterType="ProcVariable">
+    <selectKey keyProperty="id" order="BEFORE" resultType="long">
+    select msg_info_id_seq.nextval from dual
+    </selectKey>
+    insert into BPM_EXP_PROPERTY
+      (ID, name, value, TENANTID, STATUS, MODELID, RESOURCEID)
+    values
+      (#{id}, #{name}, #{value}, '1', 1, #{modelId}, #{resourceId})
+  </insert>
+</mapper>

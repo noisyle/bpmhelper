@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -25,6 +26,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.chinanx.springboot.model.ProcModel;
 import com.chinanx.springboot.model.ProcVariable;
 import com.chinanx.springboot.repository.ProcModelRepository;
+import com.chinanx.springboot.repository.ProcVariableRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -35,6 +38,8 @@ public class ProcModelController {
     
     @Autowired
     private ProcModelRepository repository;
+    @Autowired
+    private ProcVariableRepository varRepository;
 
     @GetMapping("/procmodel")
     public String home() {
@@ -58,14 +63,7 @@ public class ProcModelController {
     @SuppressWarnings("unchecked")
     @ResponseBody
     @PutMapping("/procmodel/{id:\\d+}")
-    public Object saveProcModelById(@PathVariable long id, @RequestParam String bytes, @RequestParam String variables) {
-        try {
-            List<ProcVariable> varList = (List<ProcVariable>) new ObjectMapper().readValue(variables, List.class);
-            logger.debug("update mode, id: {}, bytes: {}, variables: {}", id, bytes, varList);
-        } catch (Exception e) {
-            logger.error("save model error", e);
-            throw new RuntimeException("save model failed", e);
-        }
+    public Object saveProcModel(@PathVariable long id, @RequestParam String bytes, @RequestParam String variables) {
         ProcModel model = repository.getProcModelById(id);
         File folder = new File(System.getProperty("user.home"), ".bpmhelper");
         if(!folder.exists()) {
@@ -81,6 +79,19 @@ public class ProcModelController {
         } catch (Exception e) {
             logger.error("backup model error", e);
             throw new RuntimeException("backup model failed", e);
+        }
+
+        try {
+            List<ProcVariable> varList = (List<ProcVariable>) new ObjectMapper().readValue(variables, new TypeReference<List<ProcVariable>>(){});
+            logger.debug("update mode, id: {}, bytes: {}, variables: {}", id, bytes, varList);
+            for(ProcVariable var : varList) {
+                if(!StringUtils.isEmpty(var.getName()) && !StringUtils.isEmpty(var.getValue())) {
+//                    varRepository.save(var);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("save model error", e);
+            throw new RuntimeException("save model failed", e);
         }
         
         try {

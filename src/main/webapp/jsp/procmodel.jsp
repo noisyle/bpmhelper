@@ -182,7 +182,7 @@
                         	name: '',
                         	value: '',
                         	modelId: that.form.id,
-                        	resourceId: shape.properties.resourceId
+                        	resourceId: shape.resourceId
                         })
                     })
                 })
@@ -198,25 +198,31 @@
           },
           onSave : function(){
         	  var that = this
-              const loading = this.$loading({
-                lock: true,
-                text: '处理中',
-                spinner: 'el-icon-loading',
-                background: 'rgba(0, 0, 0, 0.7)'
-              });
-        	  
-        	  var formData = new FormData();
-        	  formData.append('bytes', JSON.stringify(that.form.model));
-        	  formData.append('variables', JSON.stringify(that.form.variables));
-        	  
-              axios.put('/procmodel/' + that.form.id, formData)
-                .then(function (res) {
-          		  loading.close()
-                  that.$alert('保存成功', '消息')
-                })
-                .catch(function (err) {
-                  console.log(err)
-                  loading.close()
+              this.$confirm('此操作将修改流程定义, 是否继续?', '提示', {
+                  confirmButtonText: '确定',
+                  cancelButtonText: '取消',
+                  type: 'warning'
+                }).then(() => {
+                    const loading = this.$loading({
+                      lock: true,
+                      text: '处理中',
+                      spinner: 'el-icon-loading',
+                      background: 'rgba(0, 0, 0, 0.7)'
+                    });
+                    
+                    var formData = new FormData();
+                    formData.append('bytes', JSON.stringify(that.form.model));
+                    formData.append('variables', JSON.stringify(that.form.variables));
+                    
+                    axios.put('/procmodel/' + that.form.id, formData)
+                      .then(function (res) {
+                        loading.close()
+                        that.$alert('保存成功', '提示', {type: 'success'})
+                      })
+                      .catch(function (err) {
+                        console.log(err)
+                        loading.close()
+                      })
                 })
           }
         }

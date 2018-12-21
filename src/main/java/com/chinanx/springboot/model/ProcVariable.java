@@ -5,7 +5,8 @@ public class ProcVariable {
     private String name;
     private String value;
     private long modelId;
-    private long resourceId;
+    private String resourceId;
+    
     public long getId() {
         return id;
     }
@@ -30,10 +31,10 @@ public class ProcVariable {
     public void setModelId(long modelId) {
         this.modelId = modelId;
     }
-    public long getResourceId() {
+    public String getResourceId() {
         return resourceId;
     }
-    public void setResourceId(long resourceId) {
+    public void setResourceId(String resourceId) {
         this.resourceId = resourceId;
     }
 }
