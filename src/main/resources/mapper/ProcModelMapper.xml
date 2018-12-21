@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinanx.springboot.repository.ProcModelRepository" >
+  <select id="getProcModel" resultType="ProcModel">
+    select M.ID_            ID,
+           M.NAME_          name,
+           M.VERSION_       VERSION,
+           M.DEPLOYMENT_ID_ DEPLOYMENTID
+      from ACT_RE_MODEL     M,
+           ACT_RE_PROCDEF   D,
+           ACT_GE_BYTEARRAY B,
+           BPM_PROCESS      BP,
+           BPM_CONF_BASE    BC
+     where M.DEPLOYMENT_ID_ = D.DEPLOYMENT_ID_
+       and M.EDITOR_SOURCE_VALUE_ID_ = B.ID_
+       and BC.PROCESS_DEFINITION_ID = D.ID_
+       and BP.CONF_BASE_ID = BC.ID
+       and BP.CATEGORY_ID != '715045391351808'
+       <if test="filter!=null and filter!=''">
+       and M.NAME_ like '%'||#{filter}||'%'
+       </if>
+     order by M.NAME_
+  </select>
+  
+  <select id="getProcModelById" parameterType="long" resultType="ProcModel">
+    select M.ID_                 ID,
+           M.NAME_               name,
+           M.VERSION_            VERSION,
+           M.DEPLOYMENT_ID_      DEPLOYMENTID,
+           D.RESOURCE_NAME_      RESOURCENAME,
+           D.DGRM_RESOURCE_NAME_ DGRMRESOURCENAME,
+           B.BYTES_              BYTES
+      from ACT_RE_MODEL     M,
+           ACT_RE_PROCDEF   D,
+           ACT_GE_BYTEARRAY B,
+           BPM_PROCESS      BP,
+           BPM_CONF_BASE    BC
+     where M.DEPLOYMENT_ID_ = D.DEPLOYMENT_ID_
+       and M.EDITOR_SOURCE_VALUE_ID_ = B.ID_
+       and BC.PROCESS_DEFINITION_ID = D.ID_
+       and BP.CONF_BASE_ID = BC.ID
+       and BP.CATEGORY_ID != '715045391351808'
+       and M.ID_ = #{id}
+     order by M.NAME_
+  </select>
+  
+  <select id="getProcModelImage" resultType="Map">
+    select bytes_ from ACT_GE_BYTEARRAY t where t.name_ = #{name} and t.deployment_id_ = #{deploymentId}
+  </select>
+  
+  <update id="save" parameterType="ProcModel">
+    update ACT_GE_BYTEARRAY B set B.bytes_ = #{bytes} where B.id_ = #{id}
+  </update>
+</mapper>

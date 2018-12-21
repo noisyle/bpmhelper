@@ -1,0 +1,23 @@
+server:
+    port: 8088
+
+mybatis:
+    mapper-locations: classpath:mapper/*.xml
+    type-aliases-package: com.chinanx.springboot.model
+
+logging:
+    file: ${user.home}/logs/bpmhelper.log
+    level:
+        root: INFO
+        web: DEBUG
+        com.chinanx: DEBUG
+
+spring:
+    jackson:
+        default-property-inclusion: non_null
+    mvc:
+        view:
+            prefix: /jsp/
+            suffix: .jsp
+    profiles:
+        active: '@activatedProperties@'

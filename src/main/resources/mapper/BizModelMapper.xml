@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chinanx.springboot.repository.BizModelRepository" >
+  <select id="getBizModel" resultType="BizModel">
+    select J.ID, J.JSON_XML json, P.NAME
+      from BPM_BIZ_MODEL_JSON J, BPM_PROCESS P
+     where J.BPM_PROCESS_ID = P.ID
+       <if test="filter!=null and filter!=''">
+       and P.NAME like '%' || #{filter} || '%'
+       </if>
+     order by P.NAME
+  </select>
+  
+  <select id="getBizModelById" parameterType="long" resultType="BizModel">
+    select J.ID, J.JSON_XML json, P.NAME
+      from BPM_BIZ_MODEL_JSON J, BPM_PROCESS P
+     where J.BPM_PROCESS_ID = P.ID
+       and J.ID = #{id}
+  </select>
+  
+  <update id="save" parameterType="BizModel">
+    update BPM_BIZ_MODEL_JSON B set B.JSON_XML = #{json} where B.ID = #{id}
+  </update>
+</mapper>
