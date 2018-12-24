@@ -18,5 +18,5 @@ public interface ProcModelRepository {
     
     Map<String, Object> getProcModelImage(@Param("name") String name, @Param("deploymentId") String deploymentId);
     
-    int save(ProcModel model);
+    int updateSource(ProcModel model);
 }

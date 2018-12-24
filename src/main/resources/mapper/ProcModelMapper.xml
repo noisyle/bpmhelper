@@ -33,6 +33,7 @@
            M.NAME_               name,
            M.VERSION_            VERSION,
            M.DEPLOYMENT_ID_      DEPLOYMENTID,
+           M.EDITOR_SOURCE_VALUE_ID_ SOURCEID,
            D.RESOURCE_NAME_      RESOURCENAME,
            D.DGRM_RESOURCE_NAME_ DGRMRESOURCENAME,
            B.BYTES_              BYTES
@@ -53,11 +54,9 @@
     select bytes_ from ACT_GE_BYTEARRAY t where t.name_ = #{name} and t.deployment_id_ = #{deploymentId}
   </select>
   
-  <update id="save" parameterType="ProcModel">
+  <update id="updateSource" parameterType="ProcModel">
     update ACT_GE_BYTEARRAY B
-       set B.BYTES_ = #{bytes,jdbcType=BLOB}
-     where B.ID_ = (select M.EDITOR_SOURCE_VALUE_ID_
-                      from ACT_RE_MODEL M
-                     where M.ID_ = #{id})
+       set B.BYTES_ = #{bytes}
+     where B.ID_ = #{sourceId}
   </update>
 </mapper>

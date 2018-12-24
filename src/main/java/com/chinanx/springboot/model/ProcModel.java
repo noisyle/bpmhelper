@@ -9,6 +9,7 @@ public class ProcModel {
     private String name;
     private int version;
     private long deploymentId;
+    private long sourceId;
     private String resourceName;
     private String dgrmResourceName;
     private byte[] bytes;
@@ -45,6 +46,14 @@ public class ProcModel {
         this.deploymentId = deploymentId;
     }
 
+    public long getSourceId() {
+        return sourceId;
+    }
+
+    public void setSourceId(long sourceId) {
+        this.sourceId = sourceId;
+    }
+
     public String getResourceName() {
         return resourceName;
     }
@@ -67,7 +76,7 @@ public class ProcModel {
     }
 
     public String getBytesString() throws UnsupportedEncodingException {
-        return bytes==null? null : new String((byte[]) bytes, "utf-8");
+        return bytes == null ? null : new String((byte[]) bytes, "utf-8");
     }
 
     public void setBytes(byte[] bytes) {
@@ -81,6 +90,7 @@ public class ProcModel {
     @Override
     public String toString() {
         return "ProcModel [id=" + id + ", name=" + name + ", version=" + version + ", deploymentId=" + deploymentId
-                + ", resourceName=" + resourceName + ", dgrmResourceName=" + dgrmResourceName + "]";
+                + ", sourceId=" + sourceId + ", resourceName=" + resourceName + ", dgrmResourceName=" + dgrmResourceName
+                + "]";
     }
 }

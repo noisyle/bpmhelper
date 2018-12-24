@@ -104,7 +104,7 @@ public class ProcModelController {
         
         try {
             model.setBytesString(bytes);
-            repository.save(model);
+            repository.updateSource(model);
         } catch (Exception e) {
             logger.error("Save model error", e);
             throw new RuntimeException("Save model failed", e);
