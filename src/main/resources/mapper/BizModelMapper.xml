@@ -5,8 +5,11 @@
     select J.ID, J.JSON_XML json, P.NAME
       from BPM_BIZ_MODEL_JSON J, BPM_PROCESS P
      where J.BPM_PROCESS_ID = P.ID
-       <if test="filter!=null and filter!=''">
-       and P.NAME like '%' || #{filter} || '%'
+       <if test="category != null and category != ''">
+       and P.CATEGORY_ID = #{category}
+       </if>
+       <if test="name != null and name != ''">
+       and P.NAME like '%' || #{name} || '%'
        </if>
      order by P.NAME
   </select>

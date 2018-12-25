@@ -5,6 +5,9 @@
 <meta charset="UTF-8">
 <link rel="stylesheet" href="element-ui/index.css">
 <style>
+[v-cloak] {
+  display: none;
+}
 .model-table td {
   cursor: pointer;
 }
@@ -16,9 +19,14 @@
       <el-header></el-header>
       <el-container>
         <el-aside style="position: fixed; width: 500px;">
-          <el-form :inline="true" @submit.native.prevent="search">
-            <el-form-item label="流程名称">
-              <el-input v-model="table.filter"></el-input>
+          <el-form :inline="true">
+            <el-form-item>
+              <el-input v-model="table.filter.name" placeholder="流程名称" @keyup.enter.native="search"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-select v-model="table.filter.category" placeholder="流程类型" clearable="true" @change="search">
+                <el-option v-for="category in categories" :key="category.id" :label="category.name" :value="category.id"></el-option>
+              </el-select>
             </el-form-item>
           </el-form>
           <el-table border stripe class="model-table" v-loading="table.loading" :data="table.list" @row-click="rowClick">
@@ -30,12 +38,12 @@
           </el-pagination>
         </el-aside>
         <el-main style="margin-left: 500px;">
-          <el-form ref="form" :model="form" label-width="120px" v-loading="form.loading">
+          <el-form ref="form" :model="form" label-width="120px" v-loading="form.loading" v-cloak>
             <el-form-item label="ID">
-              <el-input v-model="form.id" readonly></el-input>
+              <span>{{ form.id }}</span>
             </el-form-item>
             <el-form-item label="名称">
-              <el-input v-model="form.name" readonly></el-input>
+              <span>{{ form.name }}</span>
             </el-form-item>
             <el-form-item label="json">
               <el-input type="textarea" v-model="form.json" :autosize="{ minRows: 2, maxRows: 20 }"></el-input>
@@ -58,9 +66,10 @@
 		el : '#app',
 		data : function() {
 			return {
+				categories : [],
 				table : {
 					loading: false,
-					filter: '',
+					filter: {name: '', category: null},
 					list : [],
 					total : 0,
 					page : 1
@@ -76,6 +85,13 @@
 		mounted : function() {
 			var that = this
 			that.table.loading = true
+			axios.get('/categories')
+			  .then(function (res) {
+			    res.data.forEach(cat => that.categories.push(cat))
+			  })
+			  .catch(function (err) {
+			    console.log(err)
+			  })
 			axios.get('/bizmodel/page/' + that.table.page)
 			  .then(function (res) {
 			    that.table.list = res.data.list
@@ -92,12 +108,16 @@
           loadTable : function(filter, page){
               var that = this
               that.table.loading = true
-              axios.get('/bizmodel/page/' + page + (filter ? '?filter=' + filter : ''))
+              axios.get('/bizmodel/page/' + page, {params: filter})
                 .then(function (res) {
                   that.table.list = res.data.list
                   that.table.total = res.data.total
                   that.table.page = res.data.pageNum
                   that.table.loading = false
+                  
+                  if(res.data.list.length) {
+                	  that.rowClick(res.data.list[0])
+                  }
                 })
                 .catch(function (err) {
                   console.log(err)

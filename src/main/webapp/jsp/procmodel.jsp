@@ -5,6 +5,9 @@
 <meta charset="UTF-8">
 <link rel="stylesheet" href="element-ui/index.css">
 <style>
+[v-cloak] {
+  display: none;
+}
 .dgrm,
 .model-table td {
   cursor: pointer;
@@ -37,7 +40,7 @@
           </el-pagination>
         </el-aside>
         <el-main style="margin-left: 500px;">
-          <el-form ref="form" :model="form" label-width="120px" v-loading="form.loading">
+          <el-form ref="form" :model="form" label-width="120px" v-loading="form.loading" v-cloak>
             <el-form-item label="拓扑">
               <img v-if="form.deploymentId" class="dgrm" v-bind:src="'/procmodel/' + form.deploymentId + '_' + form.dgrmResourceName"
                 style="max-width: 100%;" @click="dgrmVisible = true" />
@@ -158,7 +161,7 @@
                   that.table.page = res.data.pageNum
                   that.table.loading = false
                   
-                  if(res.data.list) {
+                  if(res.data.list.length) {
                 	  that.rowClick(res.data.list[0])
                   }
                 })

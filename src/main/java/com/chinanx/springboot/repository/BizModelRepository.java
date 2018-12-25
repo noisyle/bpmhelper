@@ -9,7 +9,7 @@ import com.chinanx.springboot.model.BizModel;
 
 @Repository
 public interface BizModelRepository {
-    List<BizModel> getBizModel(@Param("filter") String filter);
+    List<BizModel> getBizModel(@Param("name") String name, @Param("category") String category);
     
     BizModel getBizModelById(long id);
     

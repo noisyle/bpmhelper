@@ -72,7 +72,7 @@ public class ProcModelController {
     @Transactional
     public Object saveProcModel(@PathVariable long id, @RequestParam String bytes, @RequestParam String variables) {
         ProcModel model = repository.getProcModelById(id);
-        File folder = new File(System.getProperty("user.home"), ".bpmhelper");
+        File folder = new File(System.getProperty("user.home"), ".bpmhelper/procmodel");
         if(!folder.exists()) {
             folder.mkdirs();
         }
