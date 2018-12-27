@@ -47,7 +47,6 @@
        and BC.PROCESS_DEFINITION_ID = D.ID_
        and BP.CONF_BASE_ID = BC.ID
        and M.ID_ = #{id}
-     order by M.NAME_
   </select>
   
   <select id="getProcModelImage" resultType="Map">

@@ -4,6 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <link rel="stylesheet" href="element-ui/index.css">
+<link rel="stylesheet" href="jsoneditor/jsoneditor.min.css">
 <style>
 [v-cloak] {
   display: none;
@@ -46,7 +47,7 @@
               <span>{{ form.name }}</span>
             </el-form-item>
             <el-form-item label="json">
-              <el-input type="textarea" v-model="form.json" :autosize="{ minRows: 2, maxRows: 20 }"></el-input>
+              <div id="jsoneditor" style="height: 500px;"></div>
             </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="onSave">保存</el-button>
@@ -61,6 +62,7 @@
 <script src="vuejs/vue.min.js"></script>
 <script src="element-ui/index.js"></script>
 <script src="axios/axios.min.js"></script>
+<script src="jsoneditor/jsoneditor.min.js"></script>
 <script>
 	var vm = new Vue({
 		el : '#app',
@@ -77,9 +79,9 @@
 				form : {
 					loading: false,
 					id: '',
-                    name : '',
-                    json : ''
-                }
+                    name : ''
+                },
+                editor: null
 			}
 		},
 		mounted : function() {
@@ -103,6 +105,9 @@
 			    console.log(err)
                 that.table.loading = false
 			  })
+		  var container = document.getElementById('jsoneditor')
+		  var options = {mode: 'code'}
+		  that.editor = new JSONEditor(container, options, null)
 		},
 		methods: {
           loadTable : function(filter, page){
@@ -137,7 +142,7 @@
                 .then(function (res) {
                   that.form.id = res.data.id
                   that.form.name = res.data.name
-                  that.form.json = res.data.json
+                  that.editor.set(JSON.parse(res.data.json))
                   that.form.loading = false
                 })
                 .catch(function (err) {
@@ -160,7 +165,7 @@
                       });
                       
                       var formData = new FormData();
-                      formData.append('json', that.form.json);
+                      formData.append('json', JSON.stringify(that.editor.get()));
                       
                       axios.put('/bizmodel/' + that.form.id, formData)
                         .then(function (res) {
