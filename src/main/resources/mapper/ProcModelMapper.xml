@@ -9,7 +9,8 @@
     select M.ID_            ID,
            M.NAME_          name,
            M.VERSION_       VERSION,
-           M.DEPLOYMENT_ID_ DEPLOYMENTID
+           M.DEPLOYMENT_ID_ DEPLOYMENTID,
+           B.BYTES_         BYTES
       from ACT_RE_MODEL     M,
            ACT_RE_PROCDEF   D,
            ACT_GE_BYTEARRAY B,

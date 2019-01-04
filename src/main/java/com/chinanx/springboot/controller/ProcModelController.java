@@ -2,11 +2,15 @@ package com.chinanx.springboot.controller;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Blob;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -31,6 +35,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.util.StringUtil;
 
 @Controller
 public class ProcModelController {
@@ -117,5 +122,29 @@ public class ProcModelController {
     public void getProcModelImageById(@PathVariable String deploymentId, @PathVariable String name, HttpServletResponse res) throws Exception {
         InputStream is = ((Blob) repository.getProcModelImage(name, deploymentId).get("BYTES_")).getBinaryStream();
         IOUtils.copy(is, res.getOutputStream());
+    }
+    
+    @GetMapping("/procmodel/export")
+    public void export(@RequestParam(required=false, defaultValue="") String name, @RequestParam(required=false, defaultValue="") String category, HttpServletResponse res) {
+        List<ProcModel> models = repository.getProcModel(name, category);
+        res.setHeader("Content-Disposition", "attachment; filename=export.csv");
+        res.setContentType("application/csv; charset=UTF-8");
+        Pattern p = Pattern.compile("\"岗位:.*?\"");
+        try {
+            res.getWriter().write("\"流程名称\",\"岗位\"\n");
+            for (ProcModel model : models) {
+                Matcher m = p.matcher(model.getBytesString());
+                List<String> pos = new ArrayList<String>();
+                while (m.find()) {
+                    pos.add(m.group().replaceAll("\"", ""));
+                }
+                if(!pos.isEmpty()) {
+                    res.getWriter().write(model.getName() + "," + StringUtils.collectionToDelimitedString(pos, "|") + "\n");
+                }
+            }
+        } catch (IOException e) {
+            logger.error("Export error", e);
+            throw new RuntimeException("Export failed", e);
+        }
     }
 }
